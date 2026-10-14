@@ -1,0 +1,678 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>收益率和风险的度量 · 证券投资学</title>
+<style>
+  :root{
+    --ink:#1A1D26;
+    --muted:#7A808C;
+    --hair:#ECEEF2;
+    --grey:#F2F4F7;
+    --accent:#4C7A45;
+    --ok:#22A06B;
+    --warn:#E8A33D;
+    --warn-bg:#FFF6E5;
+    --err:#E5484D;
+    --err-bg:#FDECEC;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    background:#FFFFFF;
+    color:var(--ink);
+    font-family:-apple-system,"Segoe UI",Roboto,"Microsoft YaHei",sans-serif;
+    font-size:16px;
+    line-height:1.68;
+  }
+  .wrap{
+    max-width:860px;
+    margin:0 auto;
+    padding:56px 28px 96px;
+  }
+  header.top{
+    border-bottom:1px solid var(--hair);
+    padding-bottom:28px;
+    margin-bottom:40px;
+  }
+  .kicker{
+    font-size:13px;
+    letter-spacing:.12em;
+    color:var(--muted);
+    text-transform:uppercase;
+    margin:0 0 12px;
+  }
+  h1{
+    font-size:32px;
+    line-height:1.3;
+    letter-spacing:-0.4px;
+    font-weight:700;
+    margin:0 0 14px;
+  }
+  .lede{
+    color:var(--muted);
+    font-size:15px;
+    margin:0;
+    max-width:640px;
+  }
+  h2{
+    font-size:22px;
+    font-weight:600;
+    letter-spacing:-0.2px;
+    margin:56px 0 18px;
+    padding-top:22px;
+    border-top:1px solid var(--hair);
+  }
+  h2:first-of-type{border-top:none;padding-top:0;margin-top:0;}
+  h3{
+    font-size:17px;
+    font-weight:600;
+    margin:32px 0 12px;
+  }
+  p{margin:0 0 14px;}
+  ul,ol{margin:0 0 16px;padding-left:22px;}
+  li{margin:6px 0;}
+  strong{font-weight:600;}
+  code{
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:14px;
+    background:var(--grey);
+    padding:1px 6px;
+    border-radius:6px;
+  }
+  .formula{
+    background:var(--grey);
+    border-radius:12px;
+    padding:14px 18px;
+    margin:14px 0 18px;
+    overflow-x:auto;
+    font-size:15px;
+  }
+  .formula .note{
+    display:block;
+    color:var(--muted);
+    font-size:13px;
+    margin-top:8px;
+  }
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:16px 0 22px;
+    font-size:15px;
+  }
+  caption{
+    caption-side:top;
+    text-align:left;
+    font-size:13px;
+    color:var(--muted);
+    padding-bottom:8px;
+  }
+  th,td{
+    text-align:left;
+    padding:10px 12px;
+    border-bottom:1px solid var(--hair);
+    vertical-align:top;
+  }
+  thead th{
+    font-weight:600;
+    font-size:13px;
+    letter-spacing:.04em;
+    color:var(--muted);
+    border-bottom:1px solid var(--ink);
+    white-space:nowrap;
+  }
+  tbody tr:last-child td{border-bottom:1px solid var(--hair);}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;}
+  .card{
+    border:1px solid var(--hair);
+    border-radius:20px;
+    padding:22px 24px;
+    margin:20px 0;
+  }
+  .card h3{margin-top:0;}
+  .callout{
+    border-radius:12px;
+    padding:14px 18px;
+    margin:16px 0;
+    font-size:15px;
+  }
+  .callout.warn{background:var(--warn-bg);border-left:3px solid var(--warn);}
+  .callout.err{background:var(--err-bg);border-left:3px solid var(--err);}
+  .callout.ok{background:#F1F8F4;border-left:3px solid var(--ok);}
+  .callout .label{
+    display:block;
+    font-size:13px;
+    font-weight:600;
+    letter-spacing:.04em;
+    margin-bottom:4px;
+  }
+  .callout.warn .label{color:#B87A1E;}
+  .callout.err .label{color:var(--err);}
+  .callout.ok .label{color:var(--ok);}
+  .tag{
+    display:inline-block;
+    font-size:13px;
+    padding:2px 10px;
+    border-radius:8px;
+    background:var(--grey);
+    color:var(--muted);
+    margin-right:6px;
+  }
+  .tag.accent{
+    background:#EAF1E7;
+    color:var(--accent);
+  }
+  .mermaid{
+    margin:24px 0;
+    text-align:center;
+    overflow-x:auto;
+  }
+  .grid2{
+    display:flex;
+    flex-wrap:wrap;
+    gap:16px;
+    margin:18px 0;
+  }
+  .grid2 > .card{
+    flex:1 1 300px;
+    margin:0;
+  }
+  .kv{
+    font-size:14px;
+    color:var(--muted);
+  }
+  .kv b{color:var(--ink);font-weight:600;}
+  hr.soft{
+    border:none;
+    border-top:1px solid var(--hair);
+    margin:40px 0;
+  }
+  footer{
+    margin-top:64px;
+    padding-top:20px;
+    border-top:1px solid var(--hair);
+    font-size:13px;
+    color:var(--muted);
+  }
+  @media (max-width:640px){
+    .wrap{padding:36px 18px 72px;}
+    h1{font-size:26px;}
+    h2{font-size:20px;}
+    body{font-size:15px;}
+    th,td{padding:8px 8px;}
+  }
+  @media print{
+    body{font-size:11.5pt;}
+    .wrap{max-width:none;padding:0 8mm;}
+    h2{page-break-after:avoid;}
+    table,.card,.callout,.mermaid{page-break-inside:avoid;}
+    .callout.warn,.callout.err,.callout.ok{background:#FFFFFF;border-left-width:2px;}
+    .formula{background:#FFFFFF;border:1px solid var(--hair);}
+    code{background:#FFFFFF;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <p class="kicker">证券投资学 · 讲义</p>
+  <h1>收益率和风险的度量</h1>
+  <p class="lede">从单期持有期收益率出发，分别建立「面向未来」与「基于历史数据」两套收益—风险度量体系，并讨论正态分布假设失效时的补充工具：偏度、峰度与在险价值（VaR）。</p>
+</header>
+
+<h2>一、持有期收益率（HPR）</h2>
+
+<p>持有期收益率（HPR, holding-period return）由两部分构成：<strong>资本利得收益率</strong>（the rate of capital gains）与<strong>股息收益率</strong>（dividend yield）。</p>
+
+<div class="formula">
+$$HPR=\frac{P_1-P_0+D_1}{P_0}=\frac{P_1-P_0}{P_0}+\frac{D_1}{P_0}$$
+<span class="note">$HPR$ = 持有期收益率；$P_0$ = 期初价格；$P_1$ = 期末价格；$D_1$ = 现金股利</span>
+</div>
+
+<table>
+  <caption>公式中的符号含义</caption>
+  <thead>
+    <tr><th>符号</th><th>含义</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>HPR</code></td><td>持有期收益率</td></tr>
+    <tr><td><code>P₀</code></td><td>期初价格</td></tr>
+    <tr><td><code>P₁</code></td><td>期末价格</td></tr>
+    <tr><td><code>D₁</code></td><td>现金股利</td></tr>
+  </tbody>
+</table>
+
+<h3>算例</h3>
+
+<table>
+  <thead>
+    <tr><th>项目</th><th class="num">数值</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>期末价格 $P_1$</td><td class="num">110</td></tr>
+    <tr><td>期初价格 $P_0$</td><td class="num">100</td></tr>
+    <tr><td>现金股利 $D_1$</td><td class="num">4</td></tr>
+  </tbody>
+</table>
+
+<div class="formula">
+$$HPR=\frac{110-100+4}{100}=14\%$$
+</div>
+
+<h2>二、面向未来的收益率和风险测度</h2>
+
+<p>风险资产的收益率是不确定的，可以用<strong>随机变量</strong>表示。站在当前时点看，收益率取决于未来的「情境」（scenario）。</p>
+
+<h3>2.1 期望收益率</h3>
+
+<div class="formula">
+$$E(r)=\sum_{s} p(s)\,r(s)$$
+<span class="note">$p(s)$ = 各种情境的概率；$r(s)$ = 各种情境的持有期收益率；$s$ = 情境</span>
+</div>
+
+<table>
+  <caption>情境—概率—收益率示例</caption>
+  <thead>
+    <tr><th>情境</th><th class="num">概率</th><th class="num">持有期收益率</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>出色</td><td class="num">.25</td><td class="num">0.3100</td></tr>
+    <tr><td>好</td><td class="num">.45</td><td class="num">0.1400</td></tr>
+    <tr><td>差</td><td class="num">.25</td><td class="num">-0.0675</td></tr>
+    <tr><td>糟糕</td><td class="num">.05</td><td class="num">-0.5200</td></tr>
+  </tbody>
+</table>
+
+<div class="formula">
+$$E(r)=(.25)(.31)+(.45)(.14)+(.25)(-.0675)+(.05)(-.52)=.0976=9.76\%$$
+</div>
+
+<h3>2.2 概率从哪来：两种学派</h3>
+
+<table>
+  <thead>
+    <tr><th>学派</th><th>对概率分布的看法</th><th>能否复现</th><th>典型例子</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>频率学派</td><td>概率分布客观存在，且可以复现</td><td>可以</td><td>扔硬币</td></tr>
+    <tr><td>贝叶斯学派</td><td>概率分布带有主观性，人们基于已有信息推测事件的概率分布</td><td>无法复现</td><td>天气、股市</td></tr>
+  </tbody>
+</table>
+
+<p>资产的预期收益率，本质上人们基于已有信息对资产未来价格的概率分布的推测，是<strong>主观的</strong>。所以，不同投资者对于同一资产的期望收益率可以不同，因为每个投资者拥有的信息不同，信息使用能力也有差异。</p>
+
+<h3>2.3 方差与标准差</h3>
+
+<div class="formula">
+$$\sigma^2=\sum_{s} p(s)\left[r(s)-E(r)\right]^2$$
+<span class="note">方差（VAR）</span>
+</div>
+
+<div class="formula">
+$$STD=\sqrt{\sigma^2}$$
+<span class="note">标准差（STD）</span>
+</div>
+
+<p>本例中方差的计算：</p>
+<div class="formula">
+$$\sigma^2=(.25)(.31-.0976)^2+(.45)(.14-.0976)^2+(.25)(-.0675-.0976)^2+(.05)(-.52-.0976)^2$$
+</div>
+
+<p>本例中标准差的计算：</p>
+<div class="formula">
+$$\sigma=\sqrt{0.038}=0.1949$$
+</div>
+
+<h3>2.4 协方差</h3>
+
+<p>两个资产 A 和 B，收益率记为 $r_A$ 和 $r_B$，其协方差为：</p>
+
+<div class="formula">
+$$Cov(r_A,r_B)=\sum_{s} p(s)\left[r_A(s)-E(r_A)\right]\left[r_B(s)-E(r_B)\right]$$
+</div>
+
+<p>协方差代表两个资产收益率之间的<strong>相关性</strong>，即共同运动的特性。</p>
+
+<h3>2.5 风险溢价</h3>
+
+<div class="formula">
+$$E(R_i)=E(r_i)-r_f$$
+<span class="note">$r_i$ 代表资产 i 的原始收益率；$r_f$ 为无风险收益率（risk-free rate）</span>
+</div>
+
+<ul>
+  <li>风险溢价（risk premium）：预期收益率和无风险收益率的差值。</li>
+  <li>风险溢价代表投资者因承担风险而多获取的收益率。</li>
+  <li>对于风险资产，我们更关心其风险溢价。</li>
+</ul>
+
+<h3>2.6 收益波动性（夏普）比率 · 未来视角</h3>
+
+<div class="formula">
+$$\text{夏普比率}=\frac{\text{收益率溢价}}{\text{风险标准差}}$$
+</div>
+
+<ul>
+  <li>代表承担 1 单位风险，多获取多少收益率。</li>
+  <li>用来判断一个投资机会是否合适。</li>
+</ul>
+
+<h2>三、基于历史数据的收益率和风险度量</h2>
+
+<h3>3.1 算术平均收益率与几何平均收益率</h3>
+
+<div class="formula">
+$$\bar{r}=\frac{1}{n}\sum_{t=1}^{n} r_t$$
+<span class="note">算术平均收益率</span>
+</div>
+
+<div class="formula">
+$$TV=(1+r_1)(1+r_2)\cdots(1+r_n)$$
+$$g=\left(\frac{TV}{1}\right)^{1/n}-1$$
+<span class="note">$TV$ = 终值；$g$ = 收益率的几何平均值</span>
+</div>
+
+<table>
+  <caption>两种平均收益率的用途对比</caption>
+  <thead>
+    <tr><th>指标</th><th>用途</th><th>前提 / 说明</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>算术平均收益率</td>
+      <td>可以作为对未来预期收益率的预测（预期）</td>
+      <td>对于随机变量 $X$，有抽样样本 $X_1,\dots,X_n$，对 $E(X_{n+1})$ 的最佳估计是 $\dfrac{X_1+X_2+\cdots+X_n}{n}$；但这里有个前提，$X_1,\dots,X_n$ 是<strong>独立同分布</strong>的</td>
+    </tr>
+    <tr>
+      <td>几何平均收益率</td>
+      <td>可以度量投资者历史投资业绩表现</td>
+      <td>基于终值 $TV$ 反推</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>3.2 样本方差与样本标准差</h3>
+
+<div class="formula">
+$$\sigma^2=\frac{1}{n-1}\sum_{j=1}^{n}\left(r_j-\bar{r}\right)^2$$
+</div>
+
+<div class="formula">
+$$\sigma=\sqrt{\frac{1}{n-1}\sum_{j=1}^{n}\left(r_j-\bar{r}\right)^2}$$
+</div>
+
+<h3>3.3 样本协方差</h3>
+
+<p>A 和 B 两个资产收益率的样本协方差公式如下：</p>
+
+<div class="formula">
+$$Cov(r_A,r_B)=\frac{1}{n-1}\sum_{j=1}^{n}\left(r_{A,j}-\bar{r}_A\right)\left(r_{B,j}-\bar{r}_B\right)$$
+</div>
+
+<h3>3.4 超额收益</h3>
+
+<div class="formula">
+$$R_{i,t}=r_{i,t}-r_{f,t}$$
+<span class="note">超额收益（excess return）：风险资产的实际收益率与实际无风险收益率的差值</span>
+</div>
+
+<div class="callout ok">
+  <span class="label">关键联系</span>
+  风险溢价是超额收益的<strong>期望</strong>。
+</div>
+
+<h3>3.5 收益波动性（夏普）比率 · 历史视角</h3>
+
+<div class="formula">
+$$\text{夏普比率}=\frac{\text{超额收益}}{\text{收益率的样本标准差}}$$
+</div>
+
+<p>这一比率广泛用于评估投资经理的历史业绩。</p>
+
+<h2>四、进一步讨论</h2>
+
+<h3>4.1 正态分布</h3>
+
+<p>我们有较为充分的理由认为，各资产的收益率的分布接近正态分布。</p>
+
+<ul>
+  <li><strong>中心极限定理</strong>：$X_1,X_2,\dots,X_n$ 独立同分布，当 $n$ 足够大，$\sum X_i$ 趋于正态分布。</li>
+</ul>
+
+<p>如果各个资产收益率的分布接近正态分布，那么：</p>
+
+<ul>
+  <li>标准差可作为收益率风险的衡量指标；</li>
+  <li>组成的投资组合的收益也服从正态分布；</li>
+  <li>仅用均值和标准差，即可刻画未来的收益率分布。</li>
+</ul>
+
+<div class="mermaid">
+graph TD
+  A["各资产收益率分布接近正态分布"] --> B["标准差可作为风险的衡量指标"]
+  A --> C["投资组合的收益也服从正态分布"]
+  A --> D["仅用均值和标准差即可刻画未来收益率分布"]
+</div>
+
+<h3>4.2 偏离正态分布和风险度量</h3>
+
+<p>如果超额收益偏离了正态分布怎么办？</p>
+
+<ul>
+  <li>标准差不再是一个衡量风险的完美度量指标。</li>
+  <li>标准差给定的情况下，分布的偏度（skew）和峰度（kurtosis）也会影响收益率的风险。</li>
+</ul>
+
+<h3>4.3 偏度与峰度</h3>
+
+<div class="formula">
+$$\text{偏度}=E\left[\left(\frac{R-E(R)}{\sigma}\right)^3\right]$$
+<span class="note">偏度（skew）：三阶矩</span>
+</div>
+
+<div class="formula">
+$$\text{峰度}=E\left[\left(\frac{R-E(R)}{\sigma}\right)^4\right]-3$$
+<span class="note">峰度（kurtosis）：四阶矩</span>
+</div>
+
+<table>
+  <thead>
+    <tr><th>分布特征</th><th>取值</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>对称的分布</td><td>偏度为 0</td></tr>
+    <tr><td>正态分布</td><td>峰度为 0</td></tr>
+  </tbody>
+</table>
+
+<h3>4.4 正态分布与偏度分布</h3>
+
+<p>正偏的分布和负偏的分布，标准差一样，但风险不一样。</p>
+
+<table>
+  <thead>
+    <tr><th>分布形态</th><th>含义</th><th>偏好者</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>负偏</td><td>极端的负收益率出现概率较大</td><td>做空投资者喜欢负偏的分布，风险小，收益大</td></tr>
+    <tr><td>正偏</td><td>极端的正收益率出现概率较大</td><td>做多投资者喜欢正偏的分布，风险小，收益大</td></tr>
+  </tbody>
+</table>
+
+<div class="callout warn">
+  <span class="label">易错点</span>
+  对于有偏度的分布，仅计算标准差是不够的。相同标准差下，<strong>负偏分布的风险高于正偏分布</strong>。
+</div>
+
+<h3>4.5 正态分布与肥尾分布</h3>
+
+<ul>
+  <li>峰度大于 0 则意味着尾部收益率（极端正或极端负）出现概率大于正态分布。</li>
+  <li>不管是做多还是做空，尾部收益率出现概率加大，都意味着风险提高了。峰度越大尾部风险越大。</li>
+</ul>
+
+<div class="callout warn">
+  <span class="label">易错点</span>
+  对于有峰度的分布，仅用标准差刻画风险也是不够的。在相同的标准差下，峰度不同，风险不同。
+</div>
+
+<h3>4.6 在险价值（Value at Risk, VaR）</h3>
+
+<p>无论收益率的分布如何，可以用 VaR 来度量投资组合的风险。</p>
+
+<ul>
+  <li>通常写成 $VaR(p)$ 的形式，$p$ 代表概率，$p$ 值通常取 5% 或 1%。</li>
+</ul>
+
+<div class="card">
+  <h3>周度 $VaR(5\%)=-20\%$ 的含义</h3>
+  <ul>
+    <li>投资组合 1 周内下跌幅度超过 20% 的概率为 5%。</li>
+    <li>投资组合有 5% 的概率会在一周内下跌超过 20%。</li>
+  </ul>
+  <p class="kv"><b>应用示例：</b>假设一只基金，投资组合的市值为 10 亿元，负债 8 亿，周度 $VaR(5\%)=-20\%$，则意味着该基金有 5% 的概率在 1 周内爆仓。</p>
+  <p class="kv"><b>类比示例：</b>年降水超过 1000 厘米，是百年一遇的年降水量，$VaR(1\%)=1000$ 厘米。</p>
+</div>
+
+<h3>4.7 VaR 的计算方法</h3>
+
+<p>方法：将历史收益率数据按从低到高排列，$VaR(5\%)$ 等于历史收益率样本分布的 5% 分位数。</p>
+
+<ul>
+  <li>假设样本由 84 个年收益率组成，则 5% 的观测的序号为 4.2。</li>
+  <li>假设最低的 5 个收益率样本为：$-25.03\%$、$-25.69\%$、$-33.49\%$、$-41.03\%$、$-45.64\%$。</li>
+  <li>则相应的 $VaR(5\%)$ 在 $-25.03\%$ 和 $-25.69\%$ 之间，是两者的加权平均：</li>
+</ul>
+
+<div class="formula">
+$$VaR(5\%)=0.8\times(-25.69\%)+0.2\times(-25.03\%)=-25.56\%$$
+</div>
+
+<div class="mermaid">
+graph LR
+  A["历史收益率数据"] --> B["按从低到高排列"]
+  B --> C["定位 5% 分位数（序号 4.2）"]
+  C --> D["取相邻两个样本加权平均"]
+  D --> E["VaR(5%) = -25.56%"]
+</div>
+
+<h2>五、全章脉络</h2>
+
+<div class="mermaid">
+graph TD
+  HPR["持有期收益率 HPR<br/>资本利得收益率 + 股息收益率"]
+  HPR --> FUT["面向未来：情境—概率法"]
+  HPR --> HIS["基于历史数据：时间序列法"]
+
+  FUT --> F1["期望收益率 E(r)"]
+  FUT --> F2["方差 / 标准差"]
+  FUT --> F3["协方差"]
+  FUT --> F4["风险溢价 = E(r) - rf"]
+  FUT --> F5["夏普比率 = 溢价 / 标准差"]
+
+  HIS --> H1["算术平均 / 几何平均"]
+  HIS --> H2["样本方差 / 样本标准差"]
+  HIS --> H3["样本协方差"]
+  HIS --> H4["超额收益 = r - rf"]
+  HIS --> H5["夏普比率 = 超额收益 / 样本标准差"]
+
+  F2 --> N["正态分布假设"]
+  H2 --> N
+  N --> N1["均值 + 标准差即可刻画分布"]
+  N --> N2["偏离正态：偏度、峰度"]
+  N2 --> V["VaR：不依赖分布形态的风险度量"]
+</div>
+
+<h2>六、要点速查表</h2>
+
+<table>
+  <thead>
+    <tr><th>概念</th><th>公式</th><th>说明</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>持有期收益率</td>
+      <td>$\dfrac{P_1-P_0+D_1}{P_0}$</td>
+      <td>资本利得收益率 + 股息收益率</td>
+    </tr>
+    <tr>
+      <td>期望收益率</td>
+      <td>$E(r)=\sum_s p(s)r(s)$</td>
+      <td>未来视角，按情境概率加权</td>
+    </tr>
+    <tr>
+      <td>方差</td>
+      <td>$\sigma^2=\sum_s p(s)\left[r(s)-E(r)\right]^2$</td>
+      <td>未来视角</td>
+    </tr>
+    <tr>
+      <td>协方差</td>
+      <td>$\sum_s p(s)\left[r_A(s)-E(r_A)\right]\left[r_B(s)-E(r_B)\right]$</td>
+      <td>两资产共同运动的特性</td>
+    </tr>
+    <tr>
+      <td>风险溢价</td>
+      <td>$E(R_i)=E(r_i)-r_f$</td>
+      <td>承担风险多获取的收益率</td>
+    </tr>
+    <tr>
+      <td>夏普比率（未来）</td>
+      <td>$\dfrac{\text{收益率溢价}}{\text{风险标准差}}$</td>
+      <td>承担 1 单位风险多获取多少收益</td>
+    </tr>
+    <tr>
+      <td>算术平均收益率</td>
+      <td>$\bar{r}=\dfrac{1}{n}\sum_{t=1}^{n}r_t$</td>
+      <td>预测未来预期收益（需独立同分布）</td>
+    </tr>
+    <tr>
+      <td>几何平均收益率</td>
+      <td>$g=\left(TV\right)^{1/n}-1$</td>
+      <td>度量历史投资业绩表现</td>
+    </tr>
+    <tr>
+      <td>样本方差</td>
+      <td>$\dfrac{1}{n-1}\sum_{j=1}^{n}\left(r_j-\bar{r}\right)^2$</td>
+      <td>历史视角</td>
+    </tr>
+    <tr>
+      <td>超额收益</td>
+      <td>$R_{i,t}=r_{i,t}-r_{f,t}$</td>
+      <td>风险溢价是其期望</td>
+    </tr>
+    <tr>
+      <td>夏普比率（历史）</td>
+      <td>$\dfrac{\text{超额收益}}{\text{收益率的样本标准差}}$</td>
+      <td>评估投资经理历史业绩</td>
+    </tr>
+    <tr>
+      <td>偏度</td>
+      <td>$E\left[\left(\dfrac{R-E(R)}{\sigma}\right)^3\right]$</td>
+      <td>对称分布为 0</td>
+    </tr>
+    <tr>
+      <td>峰度</td>
+      <td>$E\left[\left(\dfrac{R-E(R)}{\sigma}\right)^4\right]-3$</td>
+      <td>正态分布为 0；大于 0 为肥尾</td>
+    </tr>
+    <tr>
+      <td>VaR</td>
+      <td>历史收益率样本分布的 $p$ 分位数</td>
+      <td>不依赖分布形态；$p$ 常取 5% 或 1%</td>
+    </tr>
+  </tbody>
+</table>
+
+<footer>
+  证券投资学 · 收益率和风险的度量 · 讲解稿
+</footer>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({startOnLoad:true});</script>
+</body>
+</html>
