@@ -1,0 +1,616 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  // CDN 没拉到（断网）就静静退化成显示 LaTeX 原文，不留一堆控制台报错
+  if (typeof renderMathInElement !== "function") return;
+  renderMathInElement(document.body, {
+    delimiters: [
+      { left: "$$", right: "$$", display: true },
+      { left: "$", right: "$", display: false },
+      { left: "\\(", right: "\\)", display: false },
+      { left: "\\[", right: "\\]", display: true }
+    ],
+    throwOnError: false
+  });
+});
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>效用函数与资产配置 · 证券投资学</title>
+<style>
+  :root{
+    --ink:#1A1D26;
+    --muted:#7A808C;
+    --hair:#ECEEF2;
+    --soft:#F2F4F7;
+    --accent:#4C7A45;
+    --accent-soft:#A8C79A;
+    --ok:#22A06B;
+    --warn:#E8A33D;
+    --warn-bg:#FFF6E5;
+    --err:#E5484D;
+    --err-bg:#FDECEC;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    background:#FFFFFF;
+    color:var(--ink);
+    font-family:-apple-system,"Segoe UI",Roboto,"Microsoft YaHei",sans-serif;
+    font-size:16px;
+    line-height:1.68;
+    letter-spacing:0.1px;
+  }
+  .wrap{
+    max-width:860px;
+    margin:0 auto;
+    padding:56px 28px 96px;
+  }
+  header.top{
+    border-bottom:1px solid var(--hair);
+    padding-bottom:28px;
+    margin-bottom:40px;
+  }
+  .kicker{
+    font-size:13px;
+    color:var(--muted);
+    letter-spacing:1.6px;
+    text-transform:uppercase;
+    margin-bottom:14px;
+  }
+  h1{
+    font-size:32px;
+    line-height:1.3;
+    font-weight:700;
+    letter-spacing:-0.4px;
+    margin:0 0 14px;
+  }
+  .lede{
+    font-size:15px;
+    color:var(--muted);
+    margin:0;
+    max-width:640px;
+  }
+  h2{
+    font-size:22px;
+    font-weight:600;
+    letter-spacing:-0.2px;
+    margin:56px 0 18px;
+    padding-top:22px;
+    border-top:1px solid var(--hair);
+  }
+  h2:first-of-type{border-top:none;padding-top:0;margin-top:8px;}
+  h3{
+    font-size:17px;
+    font-weight:600;
+    margin:32px 0 12px;
+  }
+  p{margin:0 0 14px;}
+  ul,ol{margin:0 0 16px;padding-left:22px;}
+  li{margin-bottom:8px;}
+  strong{font-weight:600;}
+  .muted{color:var(--muted);}
+  .small{font-size:13px;line-height:1.6;}
+
+  .card{
+    border:1px solid var(--hair);
+    border-radius:20px;
+    padding:22px 24px;
+    margin:20px 0;
+    background:#FFFFFF;
+  }
+  .card.soft{background:var(--soft);border-color:transparent;}
+  .card.accent{
+    border-left:3px solid var(--accent);
+    border-radius:12px;
+    padding:18px 22px;
+  }
+  .card-title{
+    font-size:13px;
+    letter-spacing:1.2px;
+    color:var(--muted);
+    text-transform:uppercase;
+    margin-bottom:10px;
+  }
+
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:18px 0 22px;
+    font-size:14.5px;
+  }
+  caption{
+    caption-side:top;
+    text-align:left;
+    font-size:13px;
+    color:var(--muted);
+    padding-bottom:8px;
+  }
+  th,td{
+    text-align:left;
+    padding:11px 14px;
+    border-bottom:1px solid var(--hair);
+    vertical-align:top;
+  }
+  thead th{
+    font-weight:600;
+    font-size:13px;
+    letter-spacing:0.6px;
+    color:var(--muted);
+    border-bottom:1px solid var(--ink);
+    white-space:nowrap;
+  }
+  tbody tr:last-child td{border-bottom:1px solid var(--hair);}
+  td.num{font-variant-numeric:tabular-nums;}
+
+  .tag{
+    display:inline-block;
+    font-size:12px;
+    line-height:1;
+    padding:5px 9px;
+    border-radius:8px;
+    background:var(--soft);
+    color:var(--muted);
+    margin-right:6px;
+    white-space:nowrap;
+  }
+  .tag.ok{background:rgba(34,160,107,.10);color:var(--ok);}
+  .tag.warn{background:var(--warn-bg);color:#9A6A16;}
+  .tag.err{background:var(--err-bg);color:var(--err);}
+
+  .callout{
+    border-radius:12px;
+    padding:16px 20px;
+    margin:18px 0;
+    font-size:14.5px;
+  }
+  .callout.warn{background:var(--warn-bg);border-left:3px solid var(--warn);}
+  .callout.err{background:var(--err-bg);border-left:3px solid var(--err);}
+  .callout.ok{background:rgba(34,160,107,.08);border-left:3px solid var(--ok);}
+  .callout .label{
+    font-size:12px;
+    letter-spacing:1.2px;
+    text-transform:uppercase;
+    display:block;
+    margin-bottom:6px;
+    color:var(--muted);
+  }
+
+  .formula{
+    background:var(--soft);
+    border-radius:12px;
+    padding:16px 20px;
+    margin:18px 0;
+    overflow-x:auto;
+  }
+  .formula .note{
+    font-size:13px;
+    color:var(--muted);
+    margin-top:8px;
+  }
+
+  .mermaid{
+    margin:26px 0;
+    text-align:center;
+    overflow-x:auto;
+  }
+
+  .grid2{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px;
+    margin:20px 0;
+  }
+  .grid2 .card{margin:0;}
+
+  .steps{counter-reset:s;list-style:none;padding-left:0;}
+  .steps li{
+    counter-increment:s;
+    position:relative;
+    padding-left:38px;
+    margin-bottom:14px;
+  }
+  .steps li::before{
+    content:counter(s);
+    position:absolute;
+    left:0;top:1px;
+    width:24px;height:24px;
+    border-radius:8px;
+    background:var(--soft);
+    color:var(--muted);
+    font-size:12.5px;
+    line-height:24px;
+    text-align:center;
+    font-weight:600;
+  }
+
+  footer{
+    margin-top:72px;
+    padding-top:22px;
+    border-top:1px solid var(--hair);
+    font-size:13px;
+    color:var(--muted);
+  }
+
+  @media (max-width:640px){
+    .wrap{padding:36px 18px 72px;}
+    h1{font-size:26px;}
+    h2{font-size:20px;}
+    .grid2{grid-template-columns:1fr;}
+    table{font-size:13.5px;}
+    th,td{padding:9px 10px;}
+  }
+
+  @media print{
+    body{font-size:11.5pt;}
+    .wrap{max-width:none;padding:0 12mm;}
+    h2{page-break-after:avoid;}
+    h3{page-break-after:avoid;}
+    table,.card,.callout,.formula{page-break-inside:avoid;}
+    .card.soft,.formula,.tag{background:transparent;}
+    .card.soft{border:1px solid var(--hair);}
+    .mermaid{page-break-inside:avoid;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div class="kicker">证券投资学 · 课程讲解稿</div>
+  <h1>效用函数与资产配置</h1>
+  <p class="lede">从"人为什么厌恶风险"出发，用均值—方差效用函数把收益与风险折算成一个可排序的数值；再在无风险资产与风险资产之间分配资金，用代数与几何两条路径求出最优权重，并落到资本配置线、有效前沿与资本市场线上。</p>
+</header>
+
+<h2>一、风险与风险厌恶</h2>
+
+<h3>1.1 经济学的基本假设</h3>
+<p>经济学假设：<strong>人厌恶风险，厌恶不确定性</strong>。这一假设是整个效用分析框架的起点。</p>
+
+<div class="card">
+  <div class="card-title">一个直观的例子</div>
+  <table>
+    <thead>
+      <tr><th>资产</th><th>年初投入</th><th>年底收回</th><th>期望收益</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>资产 A</strong></td>
+        <td class="num">1 万</td>
+        <td class="num">1.2 万（确定）</td>
+        <td class="num">0.2 万</td>
+      </tr>
+      <tr>
+        <td><strong>资产 B</strong></td>
+        <td class="num">1 万</td>
+        <td class="num">2 万（50% 概率）<br>0.4 万（50% 概率）</td>
+        <td class="num">0.2 万</td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="small muted" style="margin-bottom:0;">两者期望收益相同，但 A 的结果确定，B 的结果不确定。<strong>大部分投资者喜欢资产 A</strong> —— 这就是风险厌恶的直接体现。</p>
+</div>
+
+<h3>1.2 风险厌恶意味着什么</h3>
+<ul>
+  <li>资产的吸引力<strong>随着期望收益的增加而增加</strong>，<strong>随着风险的减少而增加</strong>。</li>
+  <li>要求人承担风险，必须有相应的<strong>风险报偿</strong>，即更高的期望收益率。</li>
+  <li>一项有风险的投资，其期望收益率应当高于无风险投资的收益率；高出的部分，称为<strong>风险溢价</strong>。</li>
+</ul>
+
+<div class="callout warn">
+  <span class="label">问题的引出</span>
+  如果资产 A 的收益与风险<strong>都大于</strong>资产 B，怎么比较？—— 收益和风险同向变动时，单看哪一个指标都无法排序，需要引入<strong>效用函数</strong>。
+</div>
+
+<h2>二、均值—方差效用函数</h2>
+
+<h3>2.1 函数形式</h3>
+
+<div class="formula">
+$$U = E(r) - \frac{1}{2}A\sigma^2$$
+  <div class="note">其中 $\frac{1}{2}$ 是一个约定俗成的数值。</div>
+</div>
+
+<table>
+  <caption>符号含义</caption>
+  <thead>
+    <tr><th>符号</th><th>含义</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>$U$</td><td>效用值</td></tr>
+    <tr><td>$E(r)$</td><td>资产或资产组合的期望收益率</td></tr>
+    <tr><td>$A$</td><td>风险厌恶系数</td></tr>
+    <tr><td>$\sigma^2$</td><td>收益率的方差，度量风险（由于正态分布）</td></tr>
+  </tbody>
+</table>
+
+<h3>2.2 风险厌恶系数 A 的取值</h3>
+
+<table>
+  <thead>
+    <tr><th>取值</th><th>投资者类型</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>$A > 0$</td><td>风险厌恶者</td></tr>
+    <tr><td>$A = 0$</td><td>风险中性者</td></tr>
+    <tr><td>$A < 0$</td><td>风险偏好者</td></tr>
+  </tbody>
+</table>
+
+<h3>2.3 使用前提与使用方式</h3>
+
+<div class="grid2">
+  <div class="card">
+    <div class="card-title">前提</div>
+    <p style="margin-bottom:0;">均值方差效用函数的前提是<strong>收益率为正态分布</strong>，在此前提下，方差可作为风险的测度。</p>
+  </div>
+  <div class="card">
+    <div class="card-title">用法</div>
+    <p style="margin-bottom:0;">对每个投资组合计算效用值，进行排序，可以选出效用最高的组合。</p>
+  </div>
+</div>
+
+<div class="callout err">
+  <span class="label">易错点</span>
+  效用的<strong>具体数值不重要</strong>，重要的是<strong>相对大小</strong>。投资者只是想选出效用最大的投资组合，不必纠结 $U$ 的绝对水平。
+</div>
+
+<h2>三、均值—标准差坐标系</h2>
+
+<p>把每个组合画在以期望收益率为纵轴、标准差为横轴的坐标系中，可以直观比较：</p>
+
+<div class="formula">
+如果 $E(r_A) \ge E(r_B)$ 并且 $\sigma_A \le \sigma_B$，对于任何投资者而言，投资组合 A 优于投资组合 B。
+</div>
+
+<p class="small muted">即：收益不低于对方、风险不高于对方时，无需借助效用函数即可判定优劣。</p>
+
+<h2>四、无差异曲线</h2>
+
+<ul>
+  <li><strong>无差异曲线</strong>：效用水平不变时，$E(r)$ 和 $\sigma$ 的关系。</li>
+  <li>无差异曲线上的每一点，<strong>效用相同</strong>。</li>
+  <li>无差异曲线<strong>向左上角平移代表效用上升</strong>。</li>
+</ul>
+
+<div class="mermaid">
+graph LR
+  subgraph 效用递增方向
+    A["无差异曲线 U1<br/>效用较低"] --> B["无差异曲线 U2<br/>效用较高"]
+  end
+  style A fill:#F2F4F7,stroke:#ECEEF2,color:#1A1D26
+  style B fill:#F2F4F7,stroke:#ECEEF2,color:#1A1D26
+</div>
+
+<p class="small muted">在 $E(r)$—$\sigma$ 坐标系中，越靠左上（收益更高、风险更低）的无差异曲线，代表的效用水平越高。</p>
+
+<h2>五、资产配置</h2>
+
+<h3>5.1 什么是资产配置</h3>
+<ul>
+  <li>资产配置是<strong>投资组合构建中最重要的问题</strong>，决定每个类别的资产的配置比例或权重。</li>
+  <li>本课程要解决的资产配置问题：<strong>在无风险资产和风险资产之间分配资金，建立一个资产组合</strong>。</li>
+</ul>
+
+<h3>5.2 无风险资产</h3>
+
+<table>
+  <thead>
+    <tr><th>层次</th><th>界定</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>定义</td>
+      <td>持有期收益率<strong>没有不确定性</strong>。</td>
+    </tr>
+    <tr>
+      <td>严格来说</td>
+      <td>只有<strong>债券期限与持有期限相同的零息国债</strong>可以认为是无风险资产。</td>
+    </tr>
+    <tr>
+      <td>实践中</td>
+      <td>投资期限和持有期限相同的<strong>大银行的存款</strong>也可以认为是无风险资产。</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>5.3 记号设定</h3>
+
+<table>
+  <thead>
+    <tr><th>符号</th><th>含义</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>$r_f$</td><td>无风险资产收益率，标准差 $\sigma_{r_f} = 0\%$</td></tr>
+    <tr><td>$E(r_p)$</td><td>风险资产预期收益率</td></tr>
+    <tr><td>$\sigma_p$</td><td>风险资产的标准差</td></tr>
+    <tr><td>$y$</td><td>分配给风险投资组合 P 的资金比例</td></tr>
+    <tr><td>$1-y$</td><td>分配给无风险资产 F 的资金比例</td></tr>
+    <tr><td>C</td><td>利用风险资产 p 和无风险资产 f 构造出的组合</td></tr>
+  </tbody>
+</table>
+
+<h2>六、代数求解最优资产配置</h2>
+
+<h3>6.1 组合 C 的收益率与期望收益率</h3>
+
+<div class="formula">
+$$r_C = (1-y)r_f + y\,r_p$$
+$$E(r_c) = (1-y)r_f + yE(r_P) = r_f + y\left[E(r_P) - r_f\right]$$
+</div>
+
+<h3>6.2 组合 C 的风险</h3>
+
+<div class="formula">
+$$\sigma_C^2 = \mathrm{Var}\left[(1-y)r_f + y r_p\right] = y^2\sigma_p^2$$
+</div>
+
+<p class="small muted">因为无风险资产的标准差为 0，且与风险资产不相关，交叉项消失，组合方差只由风险资产部分贡献。</p>
+
+<h3>6.3 效用最优化问题</h3>
+
+<div class="formula">
+$$\max_y \; U = E(r_c) - \frac{1}{2}A\sigma_c^2 = r_f + y\left[E(r_P) - r_f\right] - \frac{1}{2}A y^2 \sigma_P^2$$
+</div>
+
+<h3>6.4 优化结果</h3>
+
+<div class="formula">
+$$y^* = \frac{E(r_P) - r_f}{A\sigma_P^2}$$
+  <div class="note">分子是<strong>奖励</strong>（风险溢价），分母是<strong>惩罚（成本）</strong>（风险厌恶系数 × 方差）。投资者在收益和风险之间进行权衡。</div>
+</div>
+
+<div class="callout ok">
+  <span class="label">读法</span>
+  风险溢价越大，投资者越愿意多配风险资产；风险厌恶系数 $A$ 越大、风险资产方差 $\sigma_P^2$ 越大，投资者越倾向于少配风险资产。
+</div>
+
+<h2>七、几何求解最优资产配置</h2>
+
+<h3>7.1 $E(r_c)$ 与 $\sigma_c$ 的关系</h3>
+
+<p>把 $y = \sigma_C / \sigma_P$ 代入期望收益率表达式，得：</p>
+
+<div class="formula">
+$$E(r_C) = r_f + \left[\frac{E(r_P) - r_f}{\sigma_P}\right]\sigma_C$$
+</div>
+
+<p>上式说明，组合 C 的预期收益率 $E(r_c)$ 和其风险 $\sigma_c$ <strong>成正比</strong>，斜率如下：</p>
+
+<div class="formula">
+$$\text{Slope} = \frac{E(r_P) - r_f}{\sigma_P}$$
+  <div class="note">这个斜率就是风险资产组合的<strong>夏普比率</strong>。</div>
+</div>
+
+<h3>7.2 资本配置线（CAL）与投资可行集</h3>
+
+<ul>
+  <li>将 $E(r_C)$ 视为 $\sigma_C$ 的函数，在 $E(r_C)$—$\sigma_C$ 坐标系中画出这个函数的图像，称为<strong>资本配置线</strong>（Capital Allocation Line, CAL）。</li>
+  <li>这个函数在图上就是<strong>无风险资产和风险资产组合的连线</strong>。</li>
+  <li>CAL 也是投资者的<strong>投资可行集</strong>，投资者只能在 CAL 上选择资产配置。</li>
+  <li>相当于 <strong>budget constraint</strong>（预算约束）。</li>
+</ul>
+
+<div class="mermaid">
+graph LR
+  F["无风险资产 F<br/>E(r) = r_f, σ = 0"] --- P["风险资产组合 P<br/>E(r_p), σ_p"]
+  F -.->|"CAL：斜率 = 夏普比率"| P
+  style F fill:#F2F4F7,stroke:#ECEEF2,color:#1A1D26
+  style P fill:#F2F4F7,stroke:#ECEEF2,color:#1A1D26
+</div>
+
+<p class="small muted">纵轴 $E(r_c)$，横轴 $\sigma_c$：直线从纵轴上的 $r_f$ 出发，经过点 $(\sigma_p,\; E(r_p))$，并向右上方延伸。</p>
+
+<h3>7.3 有效前沿</h3>
+
+<ul>
+  <li>对每一个给定的预期收益率，<strong>方差最小的组合</strong>，称为<strong>最小方差组合</strong>。</li>
+  <li>在预期收益率和方差的坐标系中，将所有最小方差组合链接起来，称为<strong>有效前沿</strong>。</li>
+  <li>在本节的设定下，<strong>资本配置线就是有效前沿</strong>。</li>
+</ul>
+
+<h2>八、用无差异曲线寻找最优组合</h2>
+
+<div class="callout ok">
+  <span class="label">最优条件</span>
+  最优投资组合的条件：<strong>无差异曲线与有效前沿相切</strong>。
+</div>
+
+<div class="mermaid">
+graph TD
+  S1["设定投资者偏好<br/>无差异曲线（由 A 决定）"] --> S2["确定投资可行集<br/>资本配置线 CAL"]
+  S2 --> S3["寻找切点<br/>无差异曲线与有效前沿相切"]
+  S3 --> S4["得到最优资产配置<br/>风险资产权重 y*"]
+  style S1 fill:#F2F4F7,stroke:#ECEEF2,color:#1A1D26
+  style S2 fill:#F2F4F7,stroke:#ECEEF2,color:#1A1D26
+  style S3 fill:#F2F4F7,stroke:#ECEEF2,color:#1A1D26
+  style S4 fill:#F2F4F7,stroke:#ECEEF2,color:#1A1D26
+</div>
+
+<p class="small muted">代数路径（对 $y$ 求导求 $y^*$）与几何路径（无差异曲线与 CAL 相切）给出的是同一个最优配置。</p>
+
+<h2>九、资本市场线</h2>
+
+<ul>
+  <li>无风险资产和<strong>市场组合</strong>构成的资本配置线（CAL）称为<strong>资本市场线</strong>（Capital Market Line, CML）。</li>
+  <li>投资者买入的风险组合为<strong>市场组合</strong>。</li>
+  <li>投资者没有进行任何证券分析来选择股票，因此投资者采用的是<strong>被动策略</strong>。</li>
+</ul>
+
+<h2>十、要点回顾</h2>
+
+<table>
+  <thead>
+    <tr><th>概念</th><th>核心内容</th><th>关键条件 / 提醒</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>风险厌恶</td>
+      <td>吸引力随期望收益增加、随风险减少而增加；承担风险需风险溢价</td>
+      <td>经济学假设：人厌恶风险与不确定性</td>
+    </tr>
+    <tr>
+      <td>效用函数</td>
+      <td>$U = E(r) - \frac{1}{2}A\sigma^2$</td>
+      <td>前提是收益率正态分布；只看相对大小</td>
+    </tr>
+    <tr>
+      <td>风险厌恶系数</td>
+      <td>$A>0$ 厌恶、$A=0$ 中性、$A<0$ 偏好</td>
+      <td>$\frac{1}{2}$ 为约定俗成数值</td>
+    </tr>
+    <tr>
+      <td>无差异曲线</td>
+      <td>效用不变时 $E(r)$ 与 $\sigma$ 的关系</td>
+      <td>向左上角平移代表效用上升</td>
+    </tr>
+    <tr>
+      <td>无风险资产</td>
+      <td>持有期收益率没有不确定性</td>
+      <td>严格：期限匹配的零息国债；实践：期限匹配的大行存款</td>
+    </tr>
+    <tr>
+      <td>最优权重</td>
+      <td>$y^* = \dfrac{E(r_P) - r_f}{A\sigma_P^2}$</td>
+      <td>分子是奖励，分母是惩罚（成本）</td>
+    </tr>
+    <tr>
+      <td>资本配置线 CAL</td>
+      <td>$E(r_C) = r_f + \left[\dfrac{E(r_P)-r_f}{\sigma_P}\right]\sigma_C$</td>
+      <td>斜率即夏普比率；CAL 是投资可行集，相当于预算约束</td>
+    </tr>
+    <tr>
+      <td>有效前沿</td>
+      <td>所有最小方差组合连成的曲线</td>
+      <td>本设定下资本配置线就是有效前沿</td>
+    </tr>
+    <tr>
+      <td>最优组合</td>
+      <td>无差异曲线与有效前沿相切</td>
+      <td>切点对应最优资产配置</td>
+    </tr>
+    <tr>
+      <td>资本市场线 CML</td>
+      <td>无风险资产与市场组合构成的 CAL</td>
+      <td>对应被动策略，投资者不做证券分析</td>
+    </tr>
+  </tbody>
+</table>
+
+<footer>
+  证券投资学 · 效用函数与资产配置 · 讲解稿
+</footer>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({startOnLoad:true});</script>
+</body>
+</html>
